@@ -1,0 +1,31 @@
+{
+  "name": "swanrest",
+  "version": "1.0.0",
+  "description": "A Micro-Framework for quickly making Server Solutions",
+  "main": "SwanRest.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "clear && jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MadsBock/SwanRest.git"
+  },
+  "author": "Mads Bock Christensen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MadsBock/SwanRest/issues"
+  },
+  "homepage": "https://github.com/MadsBock/SwanRest#readme",
+  "dependencies": {
+    "body": "^5.1.0",
+    "mime-types": "^2.1.26",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "jest": "^25.1.0",
+    "promise-fs": "^2.1.1"
+  }
+}
