@@ -1,6 +1,7 @@
 var events = require("events")
 var eventEmitter = new events.EventEmitter();
 var http = require("http")
+var https = require("https")
 var url = require("url")
 var fs = require("fs")
 var body = require("body/form")
@@ -108,6 +109,13 @@ module.exports.start = function(port = 8080) {
     server = http.createServer(serverCallback)
     server.listen(port)
 
+    console.log("Now listening on port: " + 8080)
+}
+
+module.exports.startHTTPS = function(options, port = 443) {
+    server = https.createServer(options, serverCallback)
+    server.listen(port)
+    
     console.log("Now listening on port: " + 8080)
 }
 
