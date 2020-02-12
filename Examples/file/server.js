@@ -1,4 +1,4 @@
-var rest = require("swanrest")
+var rest = require("../SwanRest")
 
 rest("/", ()=>{
     return "-file:index.html"

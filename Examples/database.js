@@ -1,4 +1,4 @@
-var rest = require("swanrest")
+var rest = require("../SwanRest")
 
 //Connect to database (only need to call once)
 rest.dbSetup("localhost", "resttest", "", "resttest")
