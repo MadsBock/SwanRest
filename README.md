@@ -110,9 +110,7 @@ rest.start()
 ## Todo
  - Finish Readme.MD
  - Documentation
- - Automated Testing
  - Commenting of the source code
  - Logging
  - Query Queueing
- - Update to Promises
  - Cookie Tests and Expiration
