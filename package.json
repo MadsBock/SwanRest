@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/MadsBock/SwanRest.git"
   },
-  "author": "Mads Bock Christensen",
+  "author": "Mads Bock Christensen <bockchristensen@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/MadsBock/SwanRest/issues"
