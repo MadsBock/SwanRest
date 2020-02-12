@@ -10,8 +10,8 @@ var mime = require("mime-types")
 var conn = 0
 var server = 0
 
-module.exports = function(path = "/", callback) {
-    eventEmitter.on('SwanRest', async function(qPath, query, req,res) {
+module.exports = function(path = "/", callback, method = "GET") {
+    eventEmitter.on('SwanRest'+method, async function(qPath, query, req,res) {
         if(path == qPath && !res.foundPage) {
             res.foundPage = true
             var sess = GetCurrentSession(req)
@@ -97,10 +97,10 @@ function getQueryParameters(req, query, cb) {
 function serverCallback(req,res) {
     var q = url.parse(req.url, true)
     var pathname = q.pathname
-    console.log(q.pathname)
+    console.log(`[${req.method}] ${q.pathname}`)
     getQueryParameters(req,q.query,(query)=>{
         res.foundPage = false;
-        eventEmitter.emit('SwanRest', pathname, query, req,res)
+        eventEmitter.emit('SwanRest' + req.method, pathname, query, req,res)
         if(!res.foundPage) fetchFile("public/"+pathname,res)
     })
 }
@@ -115,7 +115,7 @@ module.exports.start = function(port = 8080) {
 module.exports.startHTTPS = function(options, port = 443) {
     server = https.createServer(options, serverCallback)
     server.listen(port)
-    
+
     console.log("Now listening on port: " + 8080)
 }
 
