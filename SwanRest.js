@@ -85,24 +85,25 @@ function outputError(err, res) {
     }
 }
 
-function getQueryParameters(req, query, cb) {
-    if(req.method == "POST")
-        body(req, {}, (err,form)=>{
-            if(err) console.error(err)
-            cb(form)
-        })
-    else cb(query)
+function getQueryParameters(req, query) {
+    return new Promise((resolve,reject)=>{
+        if(req.method == "POST")
+            body(req, {}, (err,form)=>{
+                if(err) reject(err)
+                resolve(form)
+            })
+        else resolve(query)
+    })
 }
 
-function serverCallback(req,res) {
+async function serverCallback(req,res) {
     var q = url.parse(req.url, true)
     var pathname = q.pathname
     console.log(`[${req.method}] ${q.pathname}`)
-    getQueryParameters(req,q.query,(query)=>{
-        res.foundPage = false;
-        eventEmitter.emit('SwanRest' + req.method, pathname, query, req,res)
-        if(!res.foundPage) fetchFile("public/"+pathname,res)
-    })
+    var parameters = await getQueryParameters(req,q.query)
+    res.foundPage = false;
+    eventEmitter.emit('SwanRest' + req.method, pathname, parameters, req,res)
+    if(!res.foundPage) fetchFile("public/"+pathname,res)
 }
 
 module.exports.start = function(port = 8080) {

@@ -47,37 +47,45 @@ beforeAll(()=>{
     })
 })
 
-function GetBody(path, cb) {
-    http.get("http://localhost:8081" + path, res=>{
-        body(res, {}, cb)
+function GetBody(path) {
+    return new Promise((resolve,reject)=>{
+        http.get("http://localhost:8081" + path, res=>{
+            body(res, {}, (err,data)=>{
+                if(err) reject(err)
+                else resolve(data)
+            })
+        })
     })
 }
+
+
+
 test("Test that the root returns Hello World",done=>{
-    GetBody("/", (err,data)=>{
+    GetBody("/").then(data=>{
         expect(data).toBe("Hello World!")
-        done(err)
-    })
+        done()
+    }).catch(e=>done(e))
 })
 
 test("Test that another path doesnt return Hello World", done=>{
-    GetBody("/another", (err,data)=>{
+    GetBody("/another").then(data=>{
         expect(data).toBe("Another Page")
-        done(err)
-    })
+        done()
+    }).catch(e=>done(e))
 })
 
 test("Test that the system can fetch files implicitly", done=>{
-    GetBody("/index.html",(err,data)=>{
+    GetBody("/index.html").then(data=>{
         expect(data).toBe(fileContent)
-        done(err)
-    })
+        done()
+    }).catch(e=>done(e))
 })
 
 test("Test that the system can fetch files explicitly", done=>{
-    GetBody("/file", (err,data)=>{
+    GetBody("/file").then(data=>{
         expect(data).toBe(fileContent)
-        done(err)
-    })
+        done()
+    }).catch(e=>done(e))
 })
 
 test("Test that a session can be created, and used", done=>{
@@ -96,25 +104,25 @@ test("Test that a session can be created, and used", done=>{
 })
 
 test("Test that accessing 'useSession' without cookies, will yield Doesnt", done=>{
-    GetBody("/useSession", (err,data)=>{
+    GetBody("/useSession").then(data=>{
         expect(data).toBe("Doesnt")
         expect(data).not.toBe("Works")
-        done(err)
-    })
+        done()
+    }).catch(e=>done(e))
 })
 
 test("Test that parameters works", done=>{
-    GetBody("/echo?data=helloparameter", (err,data)=>{
+    GetBody("/echo?data=helloparameter").then(data=>{
         expect(data).toBe("helloparameter")
-        done(err)
-    })
+        done()
+    }).catch(e=>done(e))
 })
 
 test("Test that multiple parameters works", done=>{
-    GetBody("/echotwo?data=hello&other=parameter", (err,data)=>{
+    GetBody("/echotwo?data=hello&other=parameter").then(data=>{
         expect(data).toBe("helloparameter")
-        done(err)
-    })
+        done()
+    }).catch(e=>done(e))
 })
 
 afterAll(()=>{
