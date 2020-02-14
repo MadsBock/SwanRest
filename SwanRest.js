@@ -109,14 +109,14 @@ module.exports.start = function(port = 8080) {
     server = http.createServer(serverCallback)
     server.listen(port)
 
-    console.log("Now listening on port: " + 8080)
+    console.log("Now listening on port: " + port)
 }
 
 module.exports.startHTTPS = function(options, port = 443) {
     server = https.createServer(options, serverCallback)
     server.listen(port)
 
-    console.log("Now listening on port: " + 8080)
+    console.log("Now listening on port: " + port)
 }
 
 module.exports.close = function() {
