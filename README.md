@@ -112,5 +112,4 @@ rest.start()
  - Documentation
  - Commenting of the source code
  - Logging
- - Query Queueing
  - Cookie Tests and Expiration
