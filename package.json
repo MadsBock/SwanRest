@@ -21,6 +21,7 @@
   "homepage": "https://github.com/MadsBock/SwanRest#readme",
   "dependencies": {
     "body": "^5.1.0",
+    "formidable": "^1.2.1",
     "mime-types": "^2.1.26",
     "mysql": "^2.18.1"
   },

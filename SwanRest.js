@@ -4,8 +4,8 @@ var http = require("http")
 var https = require("https")
 var url = require("url")
 var fs = require("fs")
-var body = require("body/form")
 var mime = require("mime-types")
+var form = require("formidable")
 
 var conn = 0
 var server = 0
@@ -86,13 +86,27 @@ function outputError(err, res) {
 }
 
 function getQueryParameters(req, query) {
-    return new Promise((resolve,reject)=>{
-        if(req.method == "POST")
-            body(req, {}, (err,form)=>{
-                if(err) reject(err)
-                resolve(form)
-            })
-        else resolve(query)
+    if(req.method == "GET") return query;
+
+    var resultObject = {}
+    return new Promise((resolve, reject)=>{
+
+        new form.IncomingForm()
+        .on("field", (name, value)=>{
+            resultObject[name] = value
+        })
+        .on("file", (name, file)=>{
+            resultObject[name] = file
+        })
+        .on("end", ()=>{
+            resolve(resultObject)
+        })
+        .on("error", (err)=>{
+            reject(err)
+        })
+
+        .parse(req)
+
     })
 }
 
