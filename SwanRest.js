@@ -13,7 +13,17 @@ module.exports = function(path = "/", callback, method = "GET") {
     eventEmitter.on(path+method, async function(query, req,res) {
         res.foundPage = true
         var sess = GetCurrentSession(req)
-        var output = await callback(query, sess)
+        //var output = await callback(query, sess)
+        var output
+        await callback(query, sess)
+        .then(oup => {
+            output = oup
+        },
+        err => {
+            console.error(err)
+            res.statusCode = 500
+        })
+
         SaveSession(sess,res)
         if(output)
         switch (typeof(output)) {
@@ -54,32 +64,6 @@ function fetchFile(pathname, res) {
 function handleObject(query, res) {
     if(query.constructor.name == "OkPacket") res.end("OK")
     res.end(JSON.stringify(query))
-}
-
-function outputError(err, res) {
-    var oup = {
-        title: "Unhandled Internal Error",
-        error_number: err.errno,
-        text: err.code
-    }
-    console.log(JSON.stringify(oup), " ", 2)
-    switch (err.errno) {
-        case 1146:
-            oup.text = "Error in Query Syntax, are you sure that the table exist?"
-            break;
-        case 1049:
-            oup.text = "Error in Connecting to Database, are you sure that the database exist?"
-            break;
-        case 1045:
-            oup.text = "Connection to database denied, check your credentials"
-            break;
-        default:
-            oup.suggestion = "Please report this error code to <EMAIL> for future handling of this error"
-            break;
-    }
-    if(res) {
-        res.end(JSON.stringify(oup," ", 2))
-    }
 }
 
 function getQueryParameters(req, query) {
@@ -131,9 +115,9 @@ module.exports.startHTTPS = function(options, port = 443) {
     console.log("Now listening on port: " + port)
 }
 
-module.exports.close = function() {
+module.exports.close = async function() {
     if(server != 0) server.close()
-    if(conn != 0) conn.close()
+    if(conn) (await conn).close()
 }
 
 //Sessions
@@ -175,15 +159,13 @@ var databaseConnection
 var mysql = require("mysql")
 
 module.exports.dbSetup = function(host = "localhost", user = "root", password="", database=undefined) {
-    var con = mysql.createConnection({
-        host: host,
-        user: user,
-        password: password
-    })
-
-    if(database) con.database = database
-
     databaseConnection = new Promise((resolve,reject)=>{
+        var con = mysql.createConnection({
+            host: host,
+            user: user,
+            password: password,
+            database: database ? database : undefined
+        })
         con.connect((err)=>{
             if(err) reject(err)
             else resolve(con)
@@ -192,17 +174,11 @@ module.exports.dbSetup = function(host = "localhost", user = "root", password=""
 }
 
 module.exports.dbQuery = async function(query, ...parameters) {
-    databaseConnection
+    return databaseConnection
     .then(conn=>new Promise((resolve, reject)=>{
         conn.query(query, parameters, (err,data)=>{
             if(err) reject(err)
             else resolve(data)
-
-
-
-
-
-            
         })
     }))
 }

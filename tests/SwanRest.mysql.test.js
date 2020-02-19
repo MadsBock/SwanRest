@@ -51,11 +51,12 @@ afterAll(()=>{
     rest.close()
 })
 
-test("Test that the correct field is returned", done=>{
+test.only("Test that the correct field is returned", done=>{
     rest.dbQuery("SELECT name FROM people WHERE job='Pilot'")
     .then(v=>{
         expect(v.length).toBe(1)
         expect(v[0].name.toBe("Wash"))
-    })
+        done()
+    }).catch(err=>done(err))
 })
 
