@@ -1,13 +1,14 @@
 {
   "name": "swanrest",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A Micro-Framework for quickly making Server Solutions",
   "main": "SwanRest.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test": "clear && jest"
+    "test": "clear && jest",
+    "testw": "cls && jest"
   },
   "repository": {
     "type": "git",

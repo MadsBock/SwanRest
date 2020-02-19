@@ -114,4 +114,3 @@ rest.start()
  - Cookie Tests and Expiration
  - Error Callback
  - False and Null handling
- - Async Save Session
