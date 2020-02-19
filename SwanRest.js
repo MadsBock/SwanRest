@@ -9,13 +9,18 @@ var form = require("formidable")
 
 var server = 0
 
+function PromiseWrap(input) {
+    return new Promise(async resolve=>{
+        resolve(await input)
+    })
+}
+
 module.exports = function(path = "/", callback, method = "GET") {
     eventEmitter.on(path+method, async function(query, req,res) {
         res.foundPage = true
         var sess = GetCurrentSession(req)
-        //var output = await callback(query, sess)
         var output
-        await callback(query, sess)
+        await PromiseWrap(callback(query,sess))
         .then(oup => {
             output = oup
         },
@@ -43,6 +48,7 @@ function handleString(output, res) {
     if(match != null) switch(match[1]){
         case "sql": respondQuery(match[2], res);return;
         case "file": fetchFile("public/"+match[2], res);return;
+        case "redirect": redirectTo(match[2], res);return;
     }
 
     res.end(output)
@@ -64,6 +70,12 @@ function fetchFile(pathname, res) {
 function handleObject(query, res) {
     if(query.constructor.name == "OkPacket") res.end("OK")
     res.end(JSON.stringify(query))
+}
+
+function redirectTo(path, res) {
+    res.statusCode = 302;
+    res.setHeader("Location", path);
+    res.end();
 }
 
 function getQueryParameters(req, query) {
