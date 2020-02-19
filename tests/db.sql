@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS resttest;
-CREATE DATABASE resttest;
-USE resttest;
+DROP DATABASE IF EXISTS swanrest;
+CREATE DATABASE swanrest;
+USE swanrest;
 
 CREATE TABLE people(
     name TEXT,

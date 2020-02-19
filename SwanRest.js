@@ -7,27 +7,24 @@ var fs = require("fs")
 var mime = require("mime-types")
 var form = require("formidable")
 
-var conn = 0
 var server = 0
 
 module.exports = function(path = "/", callback, method = "GET") {
-    eventEmitter.on('SwanRest'+method, async function(qPath, query, req,res) {
-        if(path == qPath && !res.foundPage) {
-            res.foundPage = true
-            var sess = GetCurrentSession(req)
-            var output = await callback(query, sess)
-            SaveSession(sess,res)
-            if(output)
-            switch (typeof(output)) {
-                case "string":
-                    handleString(output, res)
-                    return;
-                case "object":
-                    handleObject(output, res)
-                    return;
-            }
-            res.end()
+    eventEmitter.on(path+method, async function(query, req,res) {
+        res.foundPage = true
+        var sess = GetCurrentSession(req)
+        var output = await callback(query, sess)
+        SaveSession(sess,res)
+        if(output)
+        switch (typeof(output)) {
+            case "string":
+                handleString(output, res)
+                return;
+            case "object":
+                handleObject(output, res)
+                return;
         }
+        res.end()
     })
 }
 
@@ -113,10 +110,10 @@ function getQueryParameters(req, query) {
 async function serverCallback(req,res) {
     var q = url.parse(req.url, true)
     var pathname = q.pathname
-    console.log(`[${req.method}] ${q.pathname}`)
+    console.log(`[${req.method}] ${pathname}`)
     var parameters = await getQueryParameters(req,q.query)
     res.foundPage = false;
-    eventEmitter.emit('SwanRest' + req.method, pathname, parameters, req,res)
+    eventEmitter.emit(pathname + req.method, parameters, req,res)
     if(!res.foundPage) fetchFile("public/"+pathname,res)
 }
 
@@ -174,54 +171,38 @@ function SaveSession(sess,res) {
 }
 
 //Database
-module.exports.dbSetup = function(host = "localhost", user = "root", password="", database=null) {
-    var mysql = require('mysql')
+var databaseConnection
+var mysql = require("mysql")
 
-    var connParams = {
+module.exports.dbSetup = function(host = "localhost", user = "root", password="", database=undefined) {
+    var con = mysql.createConnection({
         host: host,
         user: user,
-        password: password,
-        dateString:true
-    }
-
-    if(database) {
-        connParams.database = database
-    }
-
-    var con = mysql.createConnection(connParams)
-    
-    con.connect(function(err) {
-        if(err) outputError(err)
-        conn = con
+        password: password
     })
-}
 
-function databaseError(res) {
-    console.error("Database has not been connected to")
-    res.writeHead(500)
-    res.end()
-}
+    if(database) con.database = database
 
-function respondQuery(query, res) {
-    if(conn==0) {
-        databaseError(res)
-    }
-
-    else conn.query(query, (err,data)=>{
-        if(err) outputError(err, res)
-        else res.end(JSON.stringify(data))
+    databaseConnection = new Promise((resolve,reject)=>{
+        con.connect((err)=>{
+            if(err) reject(err)
+            else resolve(con)
+        })
     })
 }
 
 module.exports.dbQuery = async function(query, ...parameters) {
-    if(conn==0) {
-        console.error("Database has not been connected to")
-    }
-    
-    else return new Promise((resolver,error)=>
+    databaseConnection
+    .then(conn=>new Promise((resolve, reject)=>{
         conn.query(query, parameters, (err,data)=>{
-            if(err) error(err)
-            else resolver(data)
+            if(err) reject(err)
+            else resolve(data)
+
+
+
+
+
+            
         })
-    )
+    }))
 }
