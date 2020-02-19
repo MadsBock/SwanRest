@@ -111,9 +111,7 @@ rest.start()
  - Finish Readme.MD
  - Documentation
  - Commenting of the source code
- - Logging
  - Cookie Tests and Expiration
- - Redirect
  - Error Callback
  - False and Null handling
  - Async Save Session
