@@ -32,6 +32,23 @@ beforeAll(()=>{
         }
     })
 
+    rest("/startSessionSlow", (q,session)=>{
+        return new Promise(resolve=>{
+            setTimeout(resolve, 100)
+        })
+        .then(()=>{
+            session.login = "MalcolmReynolds"
+        })
+    })
+
+    rest("/useSessionSlow", (q, session)=>{
+        if(session.login == "MalcolmReynolds") {
+            return "Works"
+        } else {
+            return "Doesnt"
+        }
+    })
+
     rest("/echo", q=>{
         return q.data;
     })
@@ -109,6 +126,21 @@ test("Test that accessing 'useSession' without cookies, will yield Doesnt", done
         expect(data).not.toBe("Works")
         done()
     }).catch(e=>done(e))
+})
+
+test("Test that cookies work, even for slow requests", done=>{
+    http.get("http://localhost:8081/startSessionSlow", res => {
+        var cookie = res.headers["set-cookie"]
+        http.get("http://localhost:8081/useSessionSlow", {
+            headers: {cookie: cookie}
+        }, res=>body(res,{}, (err,data) => {
+            expect(data).toBe("Works")
+            done(err)
+        }))
+    })
+    .on("error", err => {
+        done(err)
+    })
 })
 
 test("Test that parameters works", done=>{
