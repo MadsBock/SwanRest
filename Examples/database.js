@@ -7,4 +7,8 @@ rest("/", ()=>{
     return rest.dbQuery("SELECT * FROM ??;", "people")
 })
 
+rest("/implicit", ()=>{
+    return "-sql:SELECT * FROM people LIMIT 3";
+})
+
 rest.start()

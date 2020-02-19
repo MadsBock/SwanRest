@@ -15,6 +15,11 @@ function PromiseWrap(input) {
     })
 }
 
+function InternalError(err, res) {
+    console.error(err)
+    res.statusCode = 500
+}
+
 module.exports = function(path = "/", callback, method = "GET") {
     eventEmitter.on(path+method, async function(query, req,res) {
         res.foundPage = true
@@ -24,10 +29,7 @@ module.exports = function(path = "/", callback, method = "GET") {
         .then(oup => {
             output = oup
         },
-        err => {
-            console.error(err)
-            res.statusCode = 500
-        })
+        err => InternalError(err,res))
 
         SaveSession(sess,res)
         if(output)
@@ -183,6 +185,13 @@ module.exports.dbSetup = function(host = "localhost", user = "root", password=""
             else resolve(con)
         })
     })
+}
+
+function respondQuery(query, res) {
+    module.exports.dbQuery(query)
+    .then(data=>JSON.stringify(data))
+    .then(data=>res.end(data))
+    .catch(err => InternalError(err,res))
 }
 
 module.exports.dbQuery = async function(query, ...parameters) {
