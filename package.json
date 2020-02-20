@@ -1,6 +1,6 @@
 {
   "name": "swanrest",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A Micro-Framework for quickly making Server Solutions",
   "main": "SwanRest.js",
   "directories": {
