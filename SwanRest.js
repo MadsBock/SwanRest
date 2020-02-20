@@ -40,8 +40,9 @@ module.exports = function(path = "/", callback, method = "GET") {
             case "object":
                 handleObject(output, res)
                 return;
+            default:InternalError("Unsupported Output. Type was " + typeof(output), res);return;
         }
-        res.end()
+        else InternalError("Invalid Output", res)
     })
 }
 
@@ -51,6 +52,7 @@ function handleString(output, res) {
         case "sql": respondQuery(match[2], res);return;
         case "file": fetchFile("public/"+match[2], res);return;
         case "redirect": redirectTo(match[2], res);return;
+        case "error": InternalError(match[2], res);return;
     }
 
     res.end(output)
