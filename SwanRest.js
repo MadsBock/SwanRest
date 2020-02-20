@@ -18,6 +18,7 @@ function PromiseWrap(input) {
 function InternalError(err, res) {
     console.error(err)
     res.statusCode = 500
+    res.end()
 }
 
 module.exports = function(path = "/", callback, method = "GET") {

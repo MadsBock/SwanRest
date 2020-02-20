@@ -57,6 +57,14 @@ beforeAll(()=>{
         return q.data + q.other;
     })
 
+    rest("/error", q=>{
+        return false;
+    })
+
+    rest("/errorimplicit", q=>{
+        return "-error:Error";
+    })
+
     rest.start(8081)
 
     return fs.readFile("./public/index.html").then((v)=>{
@@ -155,6 +163,20 @@ test("Test that multiple parameters works", done=>{
         expect(data).toBe("helloparameter")
         done()
     }).catch(e=>done(e))
+})
+
+test("Test that returning false in the callback will return 500", done=>{
+    http.get("http://localhost:8081/error", (res=>{
+        expect(res.statusCode).toBe(500)
+        done()
+    }))
+})
+
+test("Test that the error keyword will return 500", done=>{
+    http.get("http://localhost:8081/errorimplicit", (res=>{
+        expect(res.statusCode).toBe(500)
+        done()
+    }))
 })
 
 afterAll(()=>{

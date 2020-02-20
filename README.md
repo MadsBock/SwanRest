@@ -107,5 +107,4 @@ rest.start()
  - Commenting of the source code
  - Cookie Tests and Expiration
  - Write Tests for:
-    - Error Callback
-    - False and Null handling
+    - Gets updated...
