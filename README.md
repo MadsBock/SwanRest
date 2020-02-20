@@ -6,12 +6,6 @@ It is still under development, but this beta version should give the general ide
 ## Security Warning
 This is so far developed without security considerations. Do NOT put this in production as is.
 
-## Getting started
-### Installation
-The module is not yet published, so you must install it through this repository
-```bash
-npm install https://github.com/MadsBock/SwanRest
-```
 ### Hello World
 Make a script called `server.js`, and put the following code inside it:
 ```javascript
