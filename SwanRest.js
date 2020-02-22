@@ -188,6 +188,9 @@ module.exports.dbSetup = function(host = "localhost", user = "root", password=""
             else resolve(con)
         })
     })
+    .catch(err=>{
+        console.error(err)
+    })
 }
 
 function respondQuery(query, res) {
