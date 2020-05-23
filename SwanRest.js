@@ -177,16 +177,13 @@ var mysql = require("mysql")
 
 module.exports.dbSetup = function(host = "localhost", user = "root", password="", database=undefined) {
     databaseConnection = new Promise((resolve,reject)=>{
-        var con = mysql.createConnection({
+        var con = mysql.createPool({
             host: host,
             user: user,
             password: password,
             database: database ? database : undefined
         })
-        con.connect((err)=>{
-            if(err) reject(err)
-            else resolve(con)
-        })
+        resolve(con)
     })
     .catch(err=>{
         console.error(err)
