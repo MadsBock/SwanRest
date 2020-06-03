@@ -38,6 +38,9 @@ module.exports = function(path = "/", callback, method = "GET") {
             case "string":
                 handleString(output, res)
                 return;
+            case "number":
+                handleString(""+output, res)
+                return;
             case "object":
                 handleObject(output, res)
                 return;
