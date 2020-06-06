@@ -46,5 +46,6 @@ The following keywords exist:
 
 ## Todo
  - transactions
+ - option object
 
 The documentation needs to be finalized, and some more testing would still be needed. Feel free to try it out and tell me what you think by either creating a GitHub issue or pull request.
