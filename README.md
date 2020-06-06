@@ -45,8 +45,6 @@ The following keywords exist:
  - ```-sql:<SELECT-query>```: Return the specified select query as a JSON array. (requires that you have set up a connection with the ```rest.dbSetup``` function.)
 
 ## Todo
- - parameter checking
- - smart error handling
  - transactions
 
 The documentation needs to be finalized, and some more testing would still be needed. Feel free to try it out and tell me what you think by either creating a GitHub issue or pull request.

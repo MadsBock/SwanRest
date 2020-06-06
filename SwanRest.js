@@ -27,9 +27,24 @@ function InternalError(err, res) {
     
 }
 
-module.exports = function(path = "/", callback, method = "GET") {
+function ExternalError(err, res) {
+    console.error(err)
+    res.statusCode = 400
+    res.end(err)
+}
+
+module.exports = function(path = "/", callback, method = "GET", expectedParameters=[]) {
     eventEmitter.on(path+method, async function(query, req,res) {
         res.foundPage = true
+
+        //check for expected parameters
+        expectedParameters.forEach(parameter=>{
+            if(!(parameter in query)) {
+                ExternalError(`Expected a ${parameter} parameter but found none`, res)
+                return;
+            }
+        })
+
         var sess = GetCurrentSession(req)
         var output
         try {
