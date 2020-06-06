@@ -15,10 +15,16 @@ function PromiseWrap(input) {
     })
 }
 
+module.exports.reportErrors = false;
+
 function InternalError(err, res) {
     console.error(err)
     res.statusCode = 500
-    res.end()
+    if(module.exports.reportErrors)
+        res.end(err)
+    else
+        res.end()
+    
 }
 
 module.exports = function(path = "/", callback, method = "GET") {
@@ -26,11 +32,14 @@ module.exports = function(path = "/", callback, method = "GET") {
         res.foundPage = true
         var sess = GetCurrentSession(req)
         var output
-        await PromiseWrap(callback(query,sess))
-        .then(oup => {
-            output = oup
-        },
-        err => InternalError(err,res))
+        try {
+            await PromiseWrap(callback(query,sess))
+            .then(oup => {
+                output = oup
+            })
+        } catch(err) {
+            InternalError(err,res)
+        }
 
         SaveSession(sess,res)
         if(output)
