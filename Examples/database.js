@@ -1,10 +1,10 @@
 var rest = require("../SwanRest")
 
 //Connect to database (only need to call once)
-rest.dbSetup("localhost", "swanrest", "", "swanrest")
+rest.mysql.setup("localhost", "swanrest", "", "swanrest")
 
 rest("/", ()=>{
-    return rest.dbQuery("SELECT * FROM ??;", "people")
+    return rest.mysql.query("SELECT * FROM ??;", "people")
 })
 
 rest("/implicit", ()=>{

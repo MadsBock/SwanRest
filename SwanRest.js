@@ -9,6 +9,7 @@ var form = require("formidable")
 
 var server = 0
 
+
 function PromiseWrap(input) {
     return new Promise(async resolve=>{
         resolve(await input)
@@ -198,38 +199,41 @@ function SaveSession(sess,res) {
     res.setHeader("Set-Cookie", "swanrestsess=" + sess.cookie)
 }
 
-//Database
-var databaseConnection
-var mysql = require("mysql")
-
-module.exports.dbSetup = function(host = "localhost", user = "root", password="", database=undefined) {
-    databaseConnection = new Promise((resolve,reject)=>{
-        var con = mysql.createPool({
-            host: host,
-            user: user,
-            password: password,
-            database: database ? database : undefined
+//MySQL Database
+module.exports.mysql = {
+    setup: function(host = "localhost", user = "root", password="", database=undefined) {
+        new Promise((resolve)=>{
+            var con = require("mysql").createPool({
+                host: host,
+                user: user,
+                password: password,
+                database: database ? database : undefined
+            })
+            resolve(con)
         })
-        resolve(con)
-    })
-    .catch(err=>{
-        console.error(err)
-    })
+        .then(con=>{
+            this.query = function(query, ...parameters) {
+                return new Promise((resolve,reject)=>{
+                    con.query(query, parameters, (err,data)=>{
+                        if(err) reject(err)
+                        resolve(data)
+                    })
+                })
+            }
+        })
+        .catch(err=>{
+            console.error(err)
+        })
+    }, 
+
+    //These functions are set to fallbacks, untill the setup is complete
+    query: ()=>console.error("Database Setup Incomplete"),
+    close: ()=>console.error("Database Setup Incomplete")
 }
 
 function respondQuery(query, res) {
-    module.exports.dbQuery(query)
+    module.exports.mysql.query(query)
     .then(data=>JSON.stringify(data))
     .then(data=>res.end(data))
     .catch(err => InternalError(err,res))
-}
-
-module.exports.dbQuery = async function(query, ...parameters) {
-    return databaseConnection
-    .then(conn=>new Promise((resolve, reject)=>{
-        conn.query(query, parameters, (err,data)=>{
-            if(err) reject(err)
-            else resolve(data)
-        })
-    }))
 }
