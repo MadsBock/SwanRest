@@ -81,6 +81,7 @@ function handleString(output, res) {
         case "file": fetchFile("public/"+match[2], res);return;
         case "redirect": redirectTo(match[2], res);return;
         case "error": InternalError(match[2], res);return;
+        case "external": ExternalError(match[2], res);return;
     }
 
     res.end(output)
