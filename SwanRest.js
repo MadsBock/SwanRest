@@ -15,22 +15,20 @@ function PromiseWrap(input) {
     })
 }
 
-module.exports.reportErrors = false;
+module.exports.reportInternalErrors = false;
 
-function InternalError(err, res) {
-    console.error(err)
-    res.statusCode = 500
-    if(module.exports.reportErrors)
-        res.end(err)
+module.exports.createError = (errno, err) => ({isRestCreated: true, errno:errno, err:err})
+
+function error(err, res) {
+    const error = err.isRestCreated ? err.error : err
+    const errno = err.isRestCreated ? err.errno : 500
+
+    res.statusCode = errno
+    if(module.exports.reportInternalErrors)
+        res.end(error)
     else
         res.end()
     
-}
-
-function ExternalError(err, res) {
-    console.error(err)
-    res.statusCode = 400
-    res.end(err)
 }
 
 module.exports = function(path = "/", callback, method = "GET", expectedParameters=[]) {
@@ -40,7 +38,7 @@ module.exports = function(path = "/", callback, method = "GET", expectedParamete
         //check for expected parameters
         expectedParameters.forEach(parameter=>{
             if(!(parameter in query)) {
-                ExternalError(`Expected a ${parameter} parameter but found none`, res)
+                error(`Expected a ${parameter} parameter but found none`, res)
                 return;
             }
         })
@@ -53,7 +51,7 @@ module.exports = function(path = "/", callback, method = "GET", expectedParamete
                 output = oup
             })
         } catch(err) {
-            InternalError(err,res)
+            error(err, res)
         }
 
         SaveSession(sess,res)
@@ -68,9 +66,9 @@ module.exports = function(path = "/", callback, method = "GET", expectedParamete
             case "object":
                 handleObject(output, res)
                 return;
-            default:InternalError("Unsupported Output. Type was " + typeof(output), res);return;
+            default:error("Unsupported Output. Type was " + typeof(output), res);return;
         }
-        else InternalError("Invalid Output", res)
+        else error("Invalid Output. Value was falsy", res)
     })
 }
 
@@ -79,8 +77,6 @@ function handleString(output, res) {
     if(match != null) switch(match[1]){
         case "file": fetchFile("public/"+match[2], res);return;
         case "redirect": redirectTo(match[2], res);return;
-        case "error": InternalError(match[2], res);return;
-        case "external": ExternalError(match[2], res);return;
     }
 
     res.end(output)

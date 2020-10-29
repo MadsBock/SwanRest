@@ -4,5 +4,4 @@
  - Purge Sessions after some time or if empty
  - Cookies Path
  - Handling of User Priviliges
- - Purge MySQL from library. Database is not a part of the solution anymore
- 
+ + Purge MySQL from library. Database is not a part of the solution anymore
