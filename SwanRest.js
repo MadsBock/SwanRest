@@ -77,7 +77,6 @@ module.exports = function(path = "/", callback, method = "GET", expectedParamete
 function handleString(output, res) {
     var match = /^-(.*?):(.*)$/s.exec(output)
     if(match != null) switch(match[1]){
-        case "sql": respondQuery(match[2], res);return;
         case "file": fetchFile("public/"+match[2], res);return;
         case "redirect": redirectTo(match[2], res);return;
         case "error": InternalError(match[2], res);return;
@@ -199,38 +198,3 @@ function SaveSession(sess,res) {
     res.setHeader("Set-Cookie", "swanrestsess=" + sess.cookie)
 }
 
-//Database
-var databaseConnection
-var mysql = require("mysql")
-
-module.exports.dbSetup = function(host = "localhost", user = "root", password="", database=undefined) {
-    databaseConnection = new Promise((resolve,reject)=>{
-        var con = mysql.createPool({
-            host: host,
-            user: user,
-            password: password,
-            database: database ? database : undefined
-        })
-        resolve(con)
-    })
-    .catch(err=>{
-        console.error(err)
-    })
-}
-
-function respondQuery(query, res) {
-    module.exports.dbQuery(query)
-    .then(data=>JSON.stringify(data))
-    .then(data=>res.end(data))
-    .catch(err => InternalError(err,res))
-}
-
-module.exports.dbQuery = async function(query, ...parameters) {
-    return databaseConnection
-    .then(conn=>new Promise((resolve, reject)=>{
-        conn.query(query, parameters, (err,data)=>{
-            if(err) reject(err)
-            else resolve(data)
-        })
-    }))
-}
