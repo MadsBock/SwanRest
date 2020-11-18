@@ -71,6 +71,8 @@ module.exports.start = function(port = 8080) {
     server.listen(port)
 
     console.log("Now listening on port: " + port)
+
+    return module.exports
 }
 
 module.exports.startHTTPS = function(options, port = 443) {
@@ -78,6 +80,7 @@ module.exports.startHTTPS = function(options, port = 443) {
     server.listen(port)
 
     console.log("Now listening on port: " + port)
+    return module.exports
 }
 
 module.exports.addDomain = (name) => {

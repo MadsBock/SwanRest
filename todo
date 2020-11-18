@@ -10,7 +10,7 @@
    - domain tests
  - new examples
  - documentation
- - start should return the rest object
+ + start should return the rest object
  - verify fields
  - options
  - Do something about the public folder
