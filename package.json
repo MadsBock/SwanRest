@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "clear && jest --silent",
+    "testLoud": "clear && jest",
     "testw": "cls && jest --silent"
   },
   "repository": {

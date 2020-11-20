@@ -32,10 +32,12 @@ function error(err, res) {
     const errno = err.isRestCreated ? err.errno : 500
 
     res.statusCode = errno
-    if(module.exports.reportInternalErrors)
+    if(err.errno<500 && err.errno>=400)
         res.end(error)
     else
         res.end()
+
+    console.error(err.error)
     
 }
 
@@ -51,12 +53,17 @@ module.exports = class Domain extends require("events").EventEmitter {
             res.foundPage = true
     
             //check for expected parameters
+            var missingParameters = []
             expectedParameters.forEach(parameter=>{
                 if(!(parameter in query)) {
-                    error(`Expected a ${parameter} parameter but found none`, res)
+                    missingParameters.push(parameter)
                     return;
                 }
             })
+            if(missingParameters.length>0) {
+                error({error:`Missing the following parameters: (${missingParameters.join(", ")})`, isRestCreated:true,errno:400}, res)
+                return;
+            }
     
             var sess = sessionController.GetCurrentSession(req)
             var output
@@ -70,8 +77,7 @@ module.exports = class Domain extends require("events").EventEmitter {
             }
     
             sessionController.SaveSession(sess,res)
-            if(output)
-            switch (typeof(output)) {
+            switch (typeof(output || "")) {
                 case "string":
                     handleString(output, res)
                     return;
@@ -83,7 +89,6 @@ module.exports = class Domain extends require("events").EventEmitter {
                     return;
                 default:error("Unsupported Output. Type was " + typeof(output), res);return;
             }
-            else error("Invalid Output. Value was falsy", res)
         })
     }
 

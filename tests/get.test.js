@@ -95,3 +95,24 @@ test("The parameters of a call can be read from the first callback parameter", d
 afterAll(()=>{
     rest.close()
 })
+
+test.only("Will fail with 400 if request does not have the required parameters", done=>{
+    const mock = jest.fn()
+    rest.get("/f",mock, ["foo", "bar"])
+
+    fetch("/f")
+    .then(data=>{
+        expect(data.status).toBe(400)
+    })
+    .then(()=>fetch("/f?foo=a"))
+    .then(data=>{
+        expect(data.status).toBe(400)
+    })
+    .then(()=>fetch("/f?foo=a&bar=b"))
+    .then(data=>{
+        expect(data.status).toBe(200)
+    })
+    .then(()=>done())
+    .catch(err=>done(err))
+    
+})

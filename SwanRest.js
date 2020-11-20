@@ -15,8 +15,6 @@ module.exports.domains = [module.exports]
 
 module.exports.getDomain = (name) => module.exports.domains.find(o=>o.name===name)
 
-module.exports.reportInternalErrors = false;
-
 function fetchFile(pathname, res) {
     var mimetype = mime.lookup(pathname)
     fs.readFile(pathname, (err, data)=>{
