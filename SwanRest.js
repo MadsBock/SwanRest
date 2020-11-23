@@ -83,6 +83,7 @@ module.exports.startHTTPS = function(options, port = 443) {
 
 module.exports.addDomain = (name) => {
     module.exports.domains[name] = new Domain(name)
+    return module.exports.domains[name]
 }
 
 module.exports.close = function() {

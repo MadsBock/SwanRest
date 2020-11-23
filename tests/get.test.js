@@ -96,7 +96,7 @@ afterAll(()=>{
     rest.close()
 })
 
-test.only("Will fail with 400 if request does not have the required parameters", done=>{
+test("Will fail with 400 if request does not have the required parameters", done=>{
     const mock = jest.fn()
     rest.get("/f",mock, ["foo", "bar"])
 
