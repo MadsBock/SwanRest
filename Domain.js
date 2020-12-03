@@ -42,16 +42,35 @@ function error(err, res) {
 }
 
 module.exports = class Domain extends require("events").EventEmitter {
-    constructor(name) {
+    constructor(name, additionalPrivs=[]) {
         super()
         this.name = name
+        this.additionalPrivs=additionalPrivs
+    }
+
+    checkAuth(sess) {
+        if("all" in this.additionalPrivs) return true
+
+        const privs = sess.meta.privs
+        if(this.name in privs) return true
+        this.additionalPrivs.forEach(p=>{
+            if(p in privs) return true
+        })
+
+        return false
     }
 
     main(path = "/", callback, method = "GET", expectedParameters=[]) {
         this.on(path+method, async function(query, req,res) {
             //if(res.foundPage) return
             res.foundPage = true
-    
+
+            var sess = sessionController.GetCurrentSession(req)
+            if(!this.checkAuth(sess)) {
+                error({isRestCreated:true, errno:403, error:"Authentication Failed"}, res)
+                return
+            }
+
             //check for expected parameters
             var missingParameters = []
             expectedParameters.forEach(parameter=>{
@@ -65,7 +84,6 @@ module.exports = class Domain extends require("events").EventEmitter {
                 return;
             }
     
-            var sess = sessionController.GetCurrentSession(req)
             var output
             try {
                 await PromiseWrap(callback(query,sess))
@@ -93,8 +111,6 @@ module.exports = class Domain extends require("events").EventEmitter {
     }
 
     messageReceived(message, parameters, req, res) {
-        //TODO verify session authentication here
-
         this.emit(message, parameters, req, res)
     }
 

@@ -9,9 +9,11 @@ var form = require("formidable")
 
 var server = 0
 
-module.exports = new Domain("default")
+module.exports = new Domain("default", ["all"])
 
-module.exports.domains = [module.exports]
+module.exports.domains = {
+    default: module.exports
+}
 
 module.exports.getDomain = (name) => module.exports.domains.find(o=>o.name===name)
 
@@ -59,7 +61,9 @@ async function serverCallback(req,res) {
     console.log(`[${req.method}] ${pathname}`)
     var parameters = await getQueryParameters(req,q.query)
     res.foundPage = false;
-    module.exports.domains.forEach(d=>d.messageReceived(pathname + req.method, parameters, req,res))
+    Object.getOwnPropertyNames(module.exports.domains).forEach(domainName=>{
+        module.exports.domains[domainName].messageReceived(pathname + req.method, parameters, req,res)
+    })   
     if(!res.foundPage) fetchFile("public/"+pathname,res)
 }
 
@@ -81,7 +85,7 @@ module.exports.startHTTPS = function(options, port = 443) {
     return module.exports
 }
 
-module.exports.addDomain = (name) => {
+module.exports.createDomain = (name) => {
     module.exports.domains[name] = new Domain(name)
     return module.exports.domains[name]
 }

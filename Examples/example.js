@@ -1,8 +1,13 @@
 const rest = require("../SwanRest")
+const domain = rest.createDomain("domain")
 
-rest.get("/", (q, sess)=>{
-    sess.number = (sess.number||0)+1
-    return sess.number
-}, [])
+rest.get("/grant", (q, sess)=>{
+    sess.grantAccess("domain")
+    return "Access Granted"
+})
+
+domain.get("/use", ()=>{
+    return "Auth Works"
+})
 
 rest.start(8080)
