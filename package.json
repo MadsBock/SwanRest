@@ -29,7 +29,6 @@
   "devDependencies": {
     "@types/jest": "^26.0.15",
     "jest": "^26.0.1",
-    "node-fetch": "^2.6.1",
-    "promise-fs": "^2.1.1"
+    "node-fetch": "^2.6.1"
   }
 }
