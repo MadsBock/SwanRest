@@ -46,7 +46,10 @@ test("Will fail if the wrong method is used for request", done=>{
     rest.post("/d", ()=>"foo")
 
     get("/d")
-    .then(res=>res.text())
+    .then(res=>{
+        expect(res.status).toBe(404)
+        return res.text()
+    })
     .then(text=>{
         expect(text).not.toBe("foo")
     })
