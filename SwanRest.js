@@ -1,6 +1,7 @@
 //Declarations
 const http = require("http")
 const url  = require("url")
+const sessions = require("./Sessions")
 var paths = {}
 
 //The methods that will be copied to every domain obj
@@ -59,9 +60,18 @@ function ServerCallback(req,res) {
     var path = paths[urlparsed+req.method]
 
     if(path) {
-        //TODO check domain
+        //Get Session
+        const sess = sessions.GetCurrentSession(req)
 
-        var response = path.callback()
+        if(!sess.checkHasAccess(path.domain)){
+            ExternalError(403, "Access Forbidden", res)
+            return;
+        }
+
+        var response = path.callback(null, sess)
+
+        //Save Session
+        sessions.SaveSession(sess, res)
 
         res.end(response)
     } else {

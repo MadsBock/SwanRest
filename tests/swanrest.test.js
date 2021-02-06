@@ -1,6 +1,7 @@
 const rest = require("../SwanRest")
-const get = (relativePath) => require("node-fetch")(`http://localhost:8080${relativePath}`)
-const post = (relativePath) => require("node-fetch")(`http://localhost:8080${relativePath}`, {method:"POST"})
+const fetch = require("fetch-cookie")(require("node-fetch"))
+const get = (relativePath) => fetch(`http://localhost:8080${relativePath}`)
+const post = (relativePath) => fetch(`http://localhost:8080${relativePath}`, {method:"POST"})
 
 beforeAll(()=>{
     rest.start()
@@ -71,6 +72,26 @@ test("Will give 403 if you try to access a page outside of domain", done=>{
     })
     .then(done)
     .catch(err=>done(err)) 
+})
+
+test("Will give 200 if you are granted access", done=>{
+    rest.domain.add("fTest")
+    rest.fTest.get("/f", ()=>"foo")
+    rest.get("/fGrant", (q,sess)=>{
+        sess.grantAccess("fTest")
+    })
+
+    get("/fGrant")
+    .then(data=>{
+        expect(data.status == 200)
+        return get("/f")
+    })
+    .then(data=>data.text())
+    .then(text=>{
+        expect(text).toBe("foo")
+        done()
+    })
+    .catch(err=>done(err))
 })
 
 afterAll(()=>{
