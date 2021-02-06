@@ -28,23 +28,19 @@ function createDomain(name) {
     return domain
 }
 
+//Adding a default domain
+const defaultDomain = createDomain("default")
+module.exports = defaultDomain.get
+module.exports.get = defaultDomain.get
+module.exports.post = defaultDomain.post
 
 //Exports
-exports.domain = {
+module.exports.domain = {
     add: (name)=> {
         const domain = createDomain(name)
         module.exports[name] = domain
     }
 }
-
-
-//Adding a default domain
-const defaultDomain = createDomain("default")
-
-module.exports = defaultDomain.get
-module.exports.get = defaultDomain.get
-module.exports.post = defaultDomain.post
-
 
 //Helper functions
 function ExternalError(statusCode, text, res) {

@@ -57,6 +57,22 @@ test("Will fail if the wrong method is used for request", done=>{
     .catch(err=>done(err)) 
 })
 
+test("Will give 403 if you try to access a page outside of domain", done=>{
+    rest.domain.add("eTest")
+    rest.eTest.get("/e", ()=>"foo")
+
+    get("/e")
+    .then(res=>{
+        expect(res.status).toBe(403)
+        return res.text()
+    })
+    .then(text=>{
+        expect(text).not.toBe("foo")
+    })
+    .then(done)
+    .catch(err=>done(err)) 
+})
+
 afterAll(()=>{
     rest.stop()
 })
