@@ -2,6 +2,8 @@
 const http = require("http")
 const url  = require("url")
 const sessions = require("./Sessions")
+const formidable = require("formidable")
+
 var paths = {}
 
 //The methods that will be copied to every domain obj
@@ -55,11 +57,45 @@ function InternalError(statusCode, text, res) {
     res.end()
 }
 
-function ServerCallback(req,res) {
+function UnpackGetParameters(req) {
+    var fields = {}
+    new URL(req.url, "http://localhost:8080").searchParams.forEach((v,k)=>{
+        fields[k] = v
+    })
+    return fields
+}
+
+function UnpackPostParameters(req) {
+    var fields = {}
+
+    return new Promise((resolve,reject)=>{
+        new formidable.IncomingForm()
+        .on("field", (name,value)=>{
+            fields[name] = value
+        })
+        .on("end", ()=>{
+            resolve(fields)
+        })
+        .on("error", err=>{
+            reject(err)
+        })
+        .parse(req)
+    })
+}
+
+const UnpackParameters = {
+    GET: UnpackGetParameters,
+    POST: UnpackPostParameters
+}
+
+async function ServerCallback(req,res) {
     var urlparsed = url.parse(req.url).pathname
     var path = paths[urlparsed+req.method]
 
     if(path) {
+        //Unpack Parameters
+        var params = await UnpackParameters[req.method](req)
+
         //Get Session
         const sess = sessions.GetCurrentSession(req)
 
@@ -68,7 +104,7 @@ function ServerCallback(req,res) {
             return;
         }
 
-        var response = path.callback(null, sess)
+        var response = path.callback(params, sess)
 
         //Save Session
         sessions.SaveSession(sess, res)
