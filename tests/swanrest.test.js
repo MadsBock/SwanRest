@@ -2,6 +2,7 @@ const rest = require("../SwanRest")
 const fetch = require("fetch-cookie")(require("node-fetch"))
 const get = (relativePath) => fetch(`http://localhost:8080${relativePath}`)
 const post = (relativePath) => fetch(`http://localhost:8080${relativePath}`, {method:"POST"})
+const delay = (ms) => new Promise(resolve=>setTimeout(resolve, ms))
 
 beforeAll(()=>{
     rest.start()
@@ -16,7 +17,7 @@ test("Can make simple request", done=>{
         expect(text).toBe("foo")
     })
     .then(done)
-    .catch(err=>done(err))    
+    .catch(err=>fail(err))   
 })
 
 test("Can make simple request, specifically get", done=>{
@@ -28,7 +29,7 @@ test("Can make simple request, specifically get", done=>{
         expect(text).toBe("bar")
     })
     .then(done)
-    .catch(err=>done(err))    
+    .catch(err=>fail(err))  
 })
 
 test("Can make simple request, specifically post", done=>{
@@ -40,7 +41,7 @@ test("Can make simple request, specifically post", done=>{
         expect(text).toBe("foo")
     })
     .then(done)
-    .catch(err=>done(err))    
+    .catch(err=>fail(err))  
 })
 
 test("Will fail if the wrong method is used for request", done=>{
@@ -55,7 +56,7 @@ test("Will fail if the wrong method is used for request", done=>{
         expect(text).not.toBe("foo")
     })
     .then(done)
-    .catch(err=>done(err)) 
+    .catch(err=>fail(err)) 
 })
 
 test("Will give 403 if you try to access a page outside of domain", done=>{
@@ -71,7 +72,7 @@ test("Will give 403 if you try to access a page outside of domain", done=>{
         expect(text).not.toBe("foo")
     })
     .then(done)
-    .catch(err=>done(err)) 
+    .catch(err=>fail(err)) 
 })
 
 test("Will give 200 if you are granted access", done=>{
@@ -92,6 +93,17 @@ test("Will give 200 if you are granted access", done=>{
         done()
     })
     .catch(err=>done(err))
+})
+
+test("Will work if given a promise as a return value", done=>{
+    rest.get("/g", ()=>delay(1000).then(()=>"foo"))
+
+    get("/g").then(data=>data.text())
+    .then(text=>{
+        expect(text).toBe("foo")
+        done()
+    })
+    .catch(err=>fail(err)) 
 })
 
 afterAll(()=>{

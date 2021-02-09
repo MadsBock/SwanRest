@@ -104,7 +104,7 @@ async function ServerCallback(req,res) {
             return;
         }
 
-        var response = path.callback(params, sess)
+        var response = await path.callback(params, sess)
 
         //Save Session
         sessions.SaveSession(sess, res)
