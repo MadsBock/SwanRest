@@ -35,7 +35,6 @@ class Session {
     }
 
     checkHasAccess(domain){
-        console.log(this.meta)
         return this.meta.privs.includes(domain)
     }
 }
