@@ -1,11 +1,11 @@
 const rest = require("../SwanRest")
 const fetch = require("fetch-cookie")(require("node-fetch"))
-const get = (relativePath) => fetch(`http://localhost:8080${relativePath}`)
-const post = (relativePath) => fetch(`http://localhost:8080${relativePath}`, {method:"POST"})
+const get = (relativePath) => fetch(`http://localhost:8081${relativePath}`)
+const post = (relativePath) => fetch(`http://localhost:8081${relativePath}`, {method:"POST"})
 const delay = (ms) => new Promise(resolve=>setTimeout(resolve, ms))
 
 beforeAll(()=>{
-    rest.start()
+    rest.start(8081)
 })
 
 test("Can make simple request", done=>{
@@ -103,7 +103,20 @@ test("Will work if given a promise as a return value", done=>{
         expect(text).toBe("foo")
         done()
     })
-    .catch(err=>fail(err)) 
+    .catch(err=>fail(err))
+})
+
+test("Will work if given an object as a return value", done=>{
+    const o = {foo:"bar"}
+    rest.get("/h", ()=>(o))
+
+    get("/h").then(data=>data.text())
+    .then(text=>{
+        expect(text).toBe(JSON.stringify(o))
+        done()
+    })
+    .catch(err=>{fail(err)})
+    .finally(done)
 })
 
 afterAll(()=>{

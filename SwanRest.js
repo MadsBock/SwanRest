@@ -88,6 +88,19 @@ const UnpackParameters = {
     POST: UnpackPostParameters
 }
 
+function StringifyResponse(response) {
+    switch (typeof response) {
+        case "undefined":
+            throw ""
+        case "object": 
+        case "array":
+            return JSON.stringify(response)
+        default:
+            return response
+            break;
+    }
+}
+
 async function ServerCallback(req,res) {
     var urlparsed = url.parse(req.url).pathname
     var path = paths[urlparsed+req.method]
@@ -104,7 +117,7 @@ async function ServerCallback(req,res) {
             return;
         }
 
-        var response = await path.callback(params, sess)
+        var response = StringifyResponse(await path.callback(params, sess))
 
         //Save Session
         sessions.SaveSession(sess, res)
@@ -118,9 +131,9 @@ async function ServerCallback(req,res) {
 var server = null
 //Creating the start method
 module.exports.start = (port=8080) => {
-    server = http.createServer((req,res)=>{
+    server = http.createServer(async (req,res)=>{
         try {
-            ServerCallback(req,res)
+            await ServerCallback(req,res)
         } catch(err) {
             InternalError(500, err, res)
         }
